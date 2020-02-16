@@ -11,28 +11,16 @@ type alias Fruit =
 
 
 type alias Flags =
-    {}
+    List Fruit
 
 
 type alias Model =
-    {}
-
-
-fruits : List Fruit
-fruits =
-    [ { name = "Яблоко"
-      , emoji = "🍏"
-      }
-    , { name = "Груша"
-      , emoji = "🍐"
-      }
-    , Fruit "Банан" "🍌"
-    ]
+    { fruits : List Fruit }
 
 
 init : Flags -> ( Model, Cmd msg )
 init flags =
-    ( {}, Cmd.none )
+    ( { fruits = flags }, Cmd.none )
 
 
 update : msg -> Model -> ( Model, Cmd msg )
@@ -59,7 +47,7 @@ view model =
     div []
         [ h1 []
             [ text "Сезон фруктов!" ]
-        , renderFruits fruits
+        , renderFruits model.fruits
         ]
 
 
