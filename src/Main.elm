@@ -4,24 +4,49 @@ import Html exposing (Html, div, h1, li, text, ul)
 
 
 
--- переменные (аналог const XXX = ... )
+-- 🍏 🍐 🍌
 
 
-fruits : List String
+type alias Fruit =
+    { name : String
+    , emoji : String
+    }
+
+
+
+{-
+   обратите внимание как указан "банан"
+   Это просто еще один вариант создания "объекта".
+   Можно сказать, что custom type Fruit в какой-то мере
+   функция конструктор и придумать такой пример:
+   const banan = new Fruit('банан','смайлик')
+   Аргументы должны идти в таком же порядке,
+   в каком они перечислены в type alias
+-}
+
+
+fruits : List Fruit
 fruits =
-    [ "яблоко", "банан", "груша" ]
+    [ { name = "Яблоко"
+      , emoji = "🍏"
+      }
+    , { name = "Груша"
+      , emoji = "🍐"
+      }
+    , Fruit "Банан" "🍌"
+    ]
 
 
 
 -- функции для отрисовки
 
 
-renderItem : String -> Html msg
-renderItem fruitName =
-    li [] [ text fruitName ]
+renderItem : Fruit -> Html msg
+renderItem fruit =
+    li [] [ text (fruit.emoji ++ " " ++ fruit.name) ]
 
 
-renderFruits : List String -> Html msg
+renderFruits : List Fruit -> Html msg
 renderFruits data =
     let
         list =
