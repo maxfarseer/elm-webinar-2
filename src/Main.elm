@@ -1,10 +1,7 @@
 module Main exposing (main)
 
+import Browser
 import Html exposing (Html, div, h1, li, text, ul)
-
-
-
--- 🍏 🍐 🍌
 
 
 type alias Fruit =
@@ -13,16 +10,12 @@ type alias Fruit =
     }
 
 
+type alias Flags =
+    {}
 
-{-
-   обратите внимание как указан "банан"
-   Это просто еще один вариант создания "объекта".
-   Можно сказать, что type alias Fruit в какой-то мере
-   функция конструктор и придумать такой пример:
-   const banan = new Fruit('банан','смайлик')
-   Аргументы должны идти в таком же порядке,
-   в каком они перечислены в type alias
--}
+
+type alias Model =
+    {}
 
 
 fruits : List Fruit
@@ -37,8 +30,14 @@ fruits =
     ]
 
 
+init : Flags -> ( Model, Cmd msg )
+init flags =
+    ( {}, Cmd.none )
 
--- функции для отрисовки
+
+update : msg -> Model -> ( Model, Cmd msg )
+update msg model =
+    ( model, Cmd.none )
 
 
 renderItem : Fruit -> Html msg
@@ -55,13 +54,20 @@ renderFruits data =
     ul [] list
 
 
-
--- главная view функция
-
-
-main =
+view : Model -> Html msg
+view model =
     div []
         [ h1 []
             [ text "Сезон фруктов!" ]
         , renderFruits fruits
         ]
+
+
+main : Program Flags Model msg
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
