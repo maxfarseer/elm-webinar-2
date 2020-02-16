@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Html exposing (Html, div, h1, li, text, ul)
 import Http
+import Json.Decode as JD exposing (Decoder, at, field, list, string)
 
 
 type alias Fruit =
@@ -14,7 +15,7 @@ type alias Fruit =
 type FruitsRequest
     = Loading
     | Failure
-    | Success
+    | Success (List Fruit)
 
 
 type alias Model =
@@ -26,13 +27,13 @@ init _ =
     ( { fruits = Loading }
     , Http.get
         { url = "http://my-json-server.typicode.com/maxfarseer/elm-webinar-2/fruits"
-        , expect = Http.expectString GotFruits
+        , expect = Http.expectJson GotFruits fruitsDecoder
         }
     )
 
 
 type Msg
-    = GotFruits (Result Http.Error String)
+    = GotFruits (Result Http.Error (List Fruit))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -41,13 +42,29 @@ update msg model =
         GotFruits response ->
             case response of
                 Ok fruits ->
-                    ( { model | fruits = Success }, Cmd.none )
+                    ( { model | fruits = Success fruits }, Cmd.none )
 
                 Err _ ->
                     ( { model | fruits = Failure }, Cmd.none )
 
 
-renderItem : Fruit -> Html msg
+
+-- Decoders
+
+
+fruitsDecoder : Decoder (List Fruit)
+fruitsDecoder =
+    list decodeFruit
+
+
+decodeFruit : Decoder Fruit
+decodeFruit =
+    JD.map2 Fruit
+        (field "name" string)
+        (field "emoji" string)
+
+
+renderItem : Fruit -> Html Msg
 renderItem fruit =
     li [] [ text (fruit.emoji ++ " " ++ fruit.name) ]
 
@@ -61,14 +78,23 @@ renderFruits data =
     ul [] list
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model =
-    div []
-        [ h1 []
-            [ text "Сезон фруктов!" ]
+    case model.fruits of
+        Success fruits ->
+            div []
+                [ h1 []
+                    [ text "Сезон фруктов!" ]
+                , renderFruits fruits
+                ]
 
-        --, renderFruits model.fruits
-        ]
+        Loading ->
+            div []
+                [ text "Загружаю" ]
+
+        Failure ->
+            div []
+                [ text "Во время загрузки, произошла ошибка" ]
 
 
 main : Program () Model Msg
