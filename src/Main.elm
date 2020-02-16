@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html, div, h1, li, text, ul)
+import Http
 
 
 type alias Fruit =
@@ -10,22 +11,40 @@ type alias Fruit =
     }
 
 
-type alias Flags =
-    List Fruit
+type FruitsRequest
+    = Loading
+    | Failure
+    | Success
 
 
 type alias Model =
-    { fruits : List Fruit }
+    { fruits : FruitsRequest }
 
 
-init : Flags -> ( Model, Cmd msg )
-init flags =
-    ( { fruits = flags }, Cmd.none )
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { fruits = Loading }
+    , Http.get
+        { url = "http://my-json-server.typicode.com/maxfarseer/elm-webinar-2/fruits"
+        , expect = Http.expectString GotFruits
+        }
+    )
 
 
-update : msg -> Model -> ( Model, Cmd msg )
+type Msg
+    = GotFruits (Result Http.Error String)
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        GotFruits response ->
+            case response of
+                Ok fruits ->
+                    ( { model | fruits = Success }, Cmd.none )
+
+                Err _ ->
+                    ( { model | fruits = Failure }, Cmd.none )
 
 
 renderItem : Fruit -> Html msg
@@ -33,7 +52,7 @@ renderItem fruit =
     li [] [ text (fruit.emoji ++ " " ++ fruit.name) ]
 
 
-renderFruits : List Fruit -> Html msg
+renderFruits : List Fruit -> Html Msg
 renderFruits data =
     let
         list =
@@ -47,11 +66,12 @@ view model =
     div []
         [ h1 []
             [ text "Сезон фруктов!" ]
-        , renderFruits model.fruits
+
+        --, renderFruits model.fruits
         ]
 
 
-main : Program Flags Model msg
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
