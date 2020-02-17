@@ -57,6 +57,14 @@ fruitsDecoder =
     list decodeFruit
 
 
+
+-- map2 (String -> String -> Fruit) -> Decoder String ->  Decoder String -> Decode Fruit
+-- map2 (a -> b -> value) -> Decoder a -> Decoder b -> Decoder value
+-- field : String -> Decoder String -> Decoder String
+-- string : Decoder String
+-- Fruit : String -> String -> Fruit
+
+
 decodeFruit : Decoder Fruit
 decodeFruit =
     JD.map2 Fruit
